@@ -39,6 +39,32 @@ def iso_date_to_fr(val):
     except Exception:
         return str(val)
 
+def float_to_minutes(val) -> Optional[int]:
+    """8.5 -> 510 minutes"""
+    if val is None or val == "":
+        return None
+    try:
+        return int(round(float(val) * 60))
+    except Exception:
+        return None
+
+
+def parse_odoo_datetime(val: str) -> Optional[datetime]:
+    """
+    Odoo renvoie souvent 'YYYY-MM-DD HH:MM:SS' (naive).
+    On l'interprète comme UTC puis on convertit en Europe/Zurich.
+    """
+    if not val:
+        return None
+    try:
+        s = str(val).replace(" ", "T")
+        dt = datetime.fromisoformat(s)  # naive
+        dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+        return dt.astimezone(ZoneInfo("Europe/Zurich"))
+    except Exception:
+        return None
+
+
 
 # ==========================================================
 # CONFIG (depuis config.ini)
@@ -222,6 +248,8 @@ def deliveries():
                     "state",
                     "partner_id",
                     "x_time_from",
+                    "x_time_to",
+                    "date_done",            
                     "x_city",
                     "x_customer_confirmation", 
                 ],
@@ -248,6 +276,24 @@ def deliveries():
                 p["badge_class"] = "text-bg-secondary"
 
             pickings_by_id[p["id"]] = p
+
+
+            # par défaut : la même couleur que l'état (ou ce que tu veux)
+            p["time_badge_class"] = p.get("badge_class", "text-bg-secondary")
+
+            # ✅ règle "retard" : seulement si done ET validé aujourd'hui
+            st = (p.get("state") or "").lower()
+            if st == "done":
+                dt_done_local = parse_odoo_datetime(p.get("date_done"))
+                today_local = datetime.now(ZoneInfo("Europe/Zurich")).date()
+
+                x_time_to_min = float_to_minutes(p.get("x_time_to"))
+                if dt_done_local and dt_done_local.date() == today_local and x_time_to_min is not None:
+                    done_min = dt_done_local.hour * 60 + dt_done_local.minute
+                    if done_min > x_time_to_min:
+                        # retard -> badge heure rouge
+                        p["time_badge_class"] = "text-bg-danger"
+
 
     # 4) Résoudre les chauffeurs (x_drivers)
     all_emp_ids = set()

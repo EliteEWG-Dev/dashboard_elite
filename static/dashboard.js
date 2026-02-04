@@ -17,17 +17,17 @@ function nowText() {
 function renderProgressKpi(k) {
   if (!k) return "";
 
-  // Aucun BL actif (tout est cancel ou vide)
   if (!k.active || k.active <= 0) {
     return `
       <div class="p-3 border-top bg-white text-muted">
         Progression livraison : aucun BL actif
-        ${k.cancel > 0 ? `<span class="ms-2 badge text-bg-danger">Annulé : ${k.cancel}</span>` : ""}
       </div>
     `;
   }
 
   const pct = Math.max(0, Math.min(100, k.pct ?? 0));
+  const truckLeft = Math.max(3, Math.min(97, pct + 2));
+
 
   return `
     <div class="p-3 border-top bg-white">
@@ -36,13 +36,19 @@ function renderProgressKpi(k) {
         <div class="fw-semibold">${pct}%</div>
       </div>
 
-      <div class="progress" role="progressbar"
-           aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-success" style="width: ${pct}%"></div>
+      <div class="progress-wrap">
+        <div class="progress" role="progressbar"
+             aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar bg-success" style="width: ${pct}%"></div>
+        </div>
+
+        <!-- 🚚 Font Awesome -->
+        <i class="fa-solid fa-truck truck" style="left:${truckLeft}%"></i>
       </div>
     </div>
   `;
 }
+
 
 /**
  * Sous-card KPI : confirmation client (cancel exclus)
@@ -104,8 +110,10 @@ function renderCard(card) {
   `;
 
   const lines = (card.pickings || []).map(p => {
+    const timeBadgeClass = p.time_badge_class || p.badge_class;
+
     const time = p.x_time_from
-      ? `<span class="badge ${esc(p.badge_class)} me-2">${esc(p.x_time_from)}</span>`
+      ? `<span class="badge ${esc(timeBadgeClass)} me-2">${esc(p.x_time_from)}</span>`
       : "";
     const city = p.x_city ? `<span class="text-muted ms-2">• ${esc(p.x_city)}</span>` : "";
     const name = p.partner_name || "";
