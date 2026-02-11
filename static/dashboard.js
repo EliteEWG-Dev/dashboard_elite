@@ -19,7 +19,7 @@ function renderProgressKpi(k) {
 
   if (!k.active || k.active <= 0) {
     return `
-      <div class="p-3 border-top bg-white text-muted">
+      <div class="p-3 border-top bg-white text-muted" style="font-size: 1.65rem;">
         Progression livraison : aucun BL actif
       </div>
     `;
@@ -28,22 +28,21 @@ function renderProgressKpi(k) {
   const pct = Math.max(0, Math.min(100, k.pct ?? 0));
   const truckLeft = Math.max(3, Math.min(97, pct + 2));
 
-
   return `
     <div class="p-3 border-top bg-white">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="fw-semibold">Progression livraison</div>
-        <div class="fw-semibold">${pct}%</div>
+        <div class="fw-semibold" style="font-size: 1.65rem;">Progression livraison</div>
+        <div class="fw-semibold" style="font-size: 1.65rem;">${pct}%</div>
       </div>
 
-      <div class="progress-wrap">
+      <div class="progress-wrap" style="height: 30px;">
         <div class="progress" role="progressbar"
-             aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
+             aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
+             style="height: 100%;">
           <div class="progress-bar bg-success" style="width: ${pct}%"></div>
         </div>
 
-        <!-- 🚚 Font Awesome -->
-        <i class="fa-solid fa-truck truck" style="left:${truckLeft}%"></i>
+        <i class="fa-solid fa-truck truck" style="left:${truckLeft}%; font-size: 32px;"></i>
       </div>
     </div>
   `;
@@ -59,7 +58,7 @@ function renderCustomerConfirmationKpi(k) {
 
   if (!k.active || k.active <= 0) {
     return `
-      <div class="p-3 border-top bg-white text-muted">
+      <div class="p-3 border-top bg-white text-muted" style="font-size: 1.8rem;">
         Confirmation client : aucun BL actif
       </div>
     `;
@@ -70,38 +69,39 @@ function renderCustomerConfirmationKpi(k) {
   return `
     <div class="p-3 border-top bg-white">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="fw-semibold">Confirmation client</div>
-        <div class="fw-semibold">${pct}%</div>
+        <div class="fw-semibold" style="font-size: 1.65rem;">Confirmation client</div>
+        <div class="fw-semibold" style="font-size: 1.65rem;">${pct}%</div>
       </div>
 
       <div class="progress" role="progressbar"
-           aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
+           aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
+           style="height: 25px;">
         <div class="progress-bar bg-primary" style="width: ${pct}%"></div>
       </div>
     </div>
   `;
 }
 
+let allCards = [];
+let currentCardIndex = 0;
+
 function renderCard(card) {
   const header = `
-    <div class="card-header bg-white">
+    <div class="card-header">
       <div class="d-flex justify-content-between align-items-start">
-        <!-- Colonne gauche : titre + chauffeurs -->
         <div>
-          <div class="fw-bold">
+          <div class="fw-bold" style="font-size: 2.1rem;">
             ${esc(card.date)} - ${esc(card.area)}
           </div>
-          <div class="text-muted">
+          <div class="text-muted" style="font-size: 1.7rem;">
             • ${esc(card.drivers)}
           </div>
         </div>
-
-        <!-- Colonne droite : Camion + Statut -->
-        <div class="d-inline-flex align-items-center gap-1">
-          <span class="badge text-bg-dark">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge text-bg-dark" style="font-size: 1.7rem; padding: 0.65rem 1.1rem;">
             Camion ${esc(card.truck)}
           </span>
-          <span class="badge ${esc(card.status_badge_class || 'text-bg-secondary')}">
+          <span class="badge ${esc(card.status_badge_class || 'text-bg-secondary')}" style="font-size: 1.8rem; padding: 0.65rem 1.1rem;">
             ${esc(card.status_label)}
           </span>
         </div>
@@ -111,39 +111,35 @@ function renderCard(card) {
 
   const lines = (card.pickings || []).map(p => {
     const timeBadgeClass = p.time_badge_class || p.badge_class;
-
     const time = p.x_time_from
-      ? `<span class="badge ${esc(timeBadgeClass)} me-2">${esc(p.x_time_from)}</span>`
+      ? `<span class="badge ${esc(timeBadgeClass)} me-3" style="font-size: 1.8rem; padding: 0.6rem 1rem;">${esc(p.x_time_from)}</span>`
       : "";
-    const city = p.x_city ? `<span class="text-muted ms-2">• ${esc(p.x_city)}</span>` : "";
+    const city = p.x_city ? `<span class="text-muted ms-2" style="font-size: 1.65rem;">• ${esc(p.x_city)}</span>` : "";
     const name = p.partner_name || "";
     const bl = p.name || "";
 
     return `
       <div class="list-group-item d-flex justify-content-between align-items-center ${esc(p.row_class)}">
-        <div class="text-truncate">
+        <div class="text-truncate flex-grow-1">
           ${time}
-          <span class="fw-semibold">${esc(name)}</span>
+          <span class="fw-semibold" style="font-size: 1.8rem;">${esc(name)}</span>
           ${city}
         </div>
         <div class="ms-3 text-nowrap">
-          <span class="badge text-bg-light border">${esc(bl)}</span>
+          <span class="badge text-bg-light border" style="font-size: 1.8rem; padding: 0.6rem 1rem;">${esc(bl)}</span>
         </div>
       </div>
     `;
   }).join("");
 
-  // ✅ Règles d'affichage selon le statut (clé du selection)
   const showDeliveryProgress = (card.status === "on_the_way");
   const showConfirmProgress  = (card.status === "open" || card.status === "full");
 
   const body = `
-    <div class="card-body p-0">
+    <div class="card-body">
       <div class="list-group list-group-flush">
         ${lines || `<div class="list-group-item text-muted">Aucun BL</div>`}
       </div>
-
-      <!-- ✅ Sous-cards KPI (conditionnées par statut) -->
       ${showDeliveryProgress ? renderProgressKpi(card.kpi_progress) : ""}
       ${showConfirmProgress ? renderCustomerConfirmationKpi(card.kpi_customer_confirmation) : ""}
     </div>
@@ -158,9 +154,14 @@ async function refreshDeliveries() {
 
   try {
     const data = await fetch("/deliveries").then(r => r.json());
-    const cards = data.cards || [];
+    allCards = data.cards || [];
+    
+    // ✅ Préserver l'index courant si possible
+    if (currentCardIndex >= allCards.length) {
+      currentCardIndex = 0;
+    }
 
-    if (!cards.length) {
+    if (!allCards.length) {
       container.innerHTML = `
         <div class="col-12">
           <div class="card shadow-sm">
@@ -168,11 +169,7 @@ async function refreshDeliveries() {
           </div>
         </div>`;
     } else {
-      container.innerHTML = cards.map(c => `
-        <div class="col-12 col-lg-6">
-          ${renderCard(c)}
-        </div>
-      `).join("");
+      displayCurrentCard();
     }
 
     lastUpdate.textContent = "Dernière mise à jour : " + nowText();
@@ -186,11 +183,62 @@ async function refreshDeliveries() {
   }
 }
 
-const refreshBtn = document.getElementById("refresh_btn");
-if (refreshBtn) {
-  refreshBtn.addEventListener("click", refreshDeliveries);
+let lastRenderedCardIndex = null;
+
+function displayCurrentCard() {
+  const container = document.getElementById("deliveries_container");
+  const navContainer = document.getElementById("nav_controls");
+
+  if (!allCards.length) return;
+
+  const card = allCards[currentCardIndex];
+
+  // Vérifie si on change réellement de carte
+  const isCardChanged = lastRenderedCardIndex !== currentCardIndex;
+
+  // Créer le wrapper
+  const newCardWrapper = document.createElement("div");
+  newCardWrapper.className = "col-12";
+  newCardWrapper.innerHTML = renderCard(card);
+
+  // Vider et injecter dans le DOM
+  container.innerHTML = "";
+  container.appendChild(newCardWrapper);
+
+  // Jouer l’animation uniquement si la carte change
+  if (isCardChanged) {
+    newCardWrapper.classList.add("card-fade");
+    void newCardWrapper.offsetWidth;
+    newCardWrapper.classList.add("show");
+  }
+
+  // Mettre à jour la référence
+  lastRenderedCardIndex = currentCardIndex;
+
+  // Mettre à jour le compteur
+  navContainer.innerHTML =
+    `<span class="text-muted mx-2" style="font-size: 1.65rem;">
+      ${currentCardIndex + 1} / ${allCards.length}
+     </span>`;
 }
 
+
+const shownextCard = () => {
+  if (!allCards.length) return;
+  
+  if (currentCardIndex < allCards.length - 1) {
+    currentCardIndex++;
+  } else {
+    currentCardIndex = 0;
+  }
+
+  displayCurrentCard();
+};
+
 refreshDeliveries();
+
+// ✅ Rafraîchissement tous les 10s
 setInterval(refreshDeliveries, 10000);
 
+// ✅ Changement de slide tous les 15s (décalé pour éviter les conflits)
+setInterval(shownextCard, 15000);
