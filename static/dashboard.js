@@ -90,7 +90,7 @@ function renderCard(card) {
     <div class="card-header">
       <div class="d-flex justify-content-between align-items-start">
         <div>
-          <div class="fw-bold" style="font-size: 1.8rem;">
+          <div class="fw-bold" style="font-size: 1.55rem;">
             ${esc(card.date)} - ${esc(card.area)}
           </div>
           <div class="text-muted" style="font-size: 1.55rem;">
