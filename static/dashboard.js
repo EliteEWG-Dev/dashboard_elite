@@ -19,7 +19,7 @@ function renderProgressKpi(k) {
 
   if (!k.active || k.active <= 0) {
     return `
-      <div class="p-3 border-top bg-white text-muted" style="font-size: 1.65rem;">
+      <div class="p-3 border-top bg-white text-muted" style="font-size: 1.25rem;">
         Progression livraison : aucun BL actif
       </div>
     `;
@@ -31,8 +31,8 @@ function renderProgressKpi(k) {
   return `
     <div class="p-3 border-top bg-white">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="fw-semibold" style="font-size: 1.65rem;">Progression livraison</div>
-        <div class="fw-semibold" style="font-size: 1.65rem;">${pct}%</div>
+        <div class="fw-semibold" style="font-size: 1.25rem;">Progression livraison</div>
+        <div class="fw-semibold" style="font-size: 1.25rem;">${pct}%</div>
       </div>
 
       <div class="progress-wrap" style="height: 30px;">
@@ -58,7 +58,7 @@ function renderCustomerConfirmationKpi(k) {
 
   if (!k.active || k.active <= 0) {
     return `
-      <div class="p-3 border-top bg-white text-muted" style="font-size: 1.8rem;">
+      <div class="p-3 border-top bg-white text-muted" style="font-size: 1.65rem;">
         Confirmation client : aucun BL actif
       </div>
     `;
@@ -69,8 +69,8 @@ function renderCustomerConfirmationKpi(k) {
   return `
     <div class="p-3 border-top bg-white">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="fw-semibold" style="font-size: 1.65rem;">Confirmation client</div>
-        <div class="fw-semibold" style="font-size: 1.65rem;">${pct}%</div>
+        <div class="fw-semibold" style="font-size: 1.25rem;">Confirmation client</div>
+        <div class="fw-semibold" style="font-size: 1.25rem;">${pct}%</div>
       </div>
 
       <div class="progress" role="progressbar"
@@ -90,18 +90,18 @@ function renderCard(card) {
     <div class="card-header">
       <div class="d-flex justify-content-between align-items-start">
         <div>
-          <div class="fw-bold" style="font-size: 2.1rem;">
+          <div class="fw-bold" style="font-size: 1.8rem;">
             ${esc(card.date)} - ${esc(card.area)}
           </div>
-          <div class="text-muted" style="font-size: 1.7rem;">
+          <div class="text-muted" style="font-size: 1.55rem;">
             • ${esc(card.drivers)}
           </div>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <span class="badge text-bg-dark" style="font-size: 1.7rem; padding: 0.65rem 1.1rem;">
+          <span class="badge text-bg-dark" style="font-size: 1.55rem; padding: 0.65rem 1.1rem;">
             Camion ${esc(card.truck)}
           </span>
-          <span class="badge ${esc(card.status_badge_class || 'text-bg-secondary')}" style="font-size: 1.8rem; padding: 0.65rem 1.1rem;">
+          <span class="badge ${esc(card.status_badge_class || 'text-bg-secondary')}" style="font-size: 1.55rem; padding: 0.65rem 1.1rem;">
             ${esc(card.status_label)}
           </span>
         </div>
@@ -112,9 +112,9 @@ function renderCard(card) {
   const lines = (card.pickings || []).map(p => {
     const timeBadgeClass = p.time_badge_class || p.badge_class;
     const time = p.x_time_from
-      ? `<span class="badge ${esc(timeBadgeClass)} me-3" style="font-size: 1.8rem; padding: 0.6rem 1rem;">${esc(p.x_time_from)}</span>`
+      ? `<span class="badge ${esc(timeBadgeClass)} me-3" style="font-size: 1.55rem; padding: 0.6rem 1rem;">${esc(p.x_time_from)}</span>`
       : "";
-    const city = p.x_city ? `<span class="text-muted ms-2" style="font-size: 1.65rem;">• ${esc(p.x_city)}</span>` : "";
+    const city = p.x_city ? `<span class="text-muted ms-2" style="font-size: 1.25rem;">• ${esc(p.x_city)}</span>` : "";
     const name = p.partner_name || "";
     const bl = p.name || "";
 
@@ -122,11 +122,11 @@ function renderCard(card) {
       <div class="list-group-item d-flex justify-content-between align-items-center ${esc(p.row_class)}">
         <div class="text-truncate flex-grow-1">
           ${time}
-          <span class="fw-semibold" style="font-size: 1.8rem;">${esc(name)}</span>
+          <span class="fw-semibold" style="font-size: 1.55rem;">${esc(name)}</span>
           ${city}
         </div>
         <div class="ms-3 text-nowrap">
-          <span class="badge text-bg-light border" style="font-size: 1.8rem; padding: 0.6rem 1rem;">${esc(bl)}</span>
+          <span class="badge text-bg-light border" style="font-size: 1.55rem; padding: 0.6rem 1rem;">${esc(bl)}</span>
         </div>
       </div>
     `;
