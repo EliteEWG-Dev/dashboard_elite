@@ -10,6 +10,26 @@ function DateNowText() {
   try { return new Date().toLocaleString(); } catch(e) { return ""; }
 }
 
+function GroupCardsBy4Picking(cardsData) {
+  const groupedCards = [];
+
+  cardsData.forEach(card => {
+    const pickings = card.pickings || [];
+    if (pickings.length === 0) {
+      // Si pas de pickings, on garde la carte vide
+      groupedCards.push({ ...card, pickings: [] });
+    } else {
+      // Découpe les pickings en tranche de 4
+      for (let i = 0; i < pickings.length; i += 4) {
+        const slice = pickings.slice(i, i + 4);
+        groupedCards.push({ ...card, pickings: slice });
+      }
+    }
+  });
+
+  return groupedCards;
+}
+
 /**
  * Sous-card KPI : progression livraison (cancel exclus)
  * k = { total, active, done, not_done, cancel, pct }
@@ -82,7 +102,7 @@ function renderCustomerConfirmationKpi(k) {
   return clone;
 }
 
-let allCards = [];
+let allCardsGrouped = [];
 let currentCardIndex = 0;
 
 function renderCard(card) {
@@ -178,15 +198,22 @@ function renderCard(card) {
   return cardDiv;
 }
 
+let allCards = []
 async function refreshDeliveries() {
   try {
     const data = await fetch("/deliveries").then(r => r.json());
     allCards = data.cards || [];
 
-    // Préserver l'index courant
-    if (currentCardIndex >= allCards.length) currentCardIndex = 0;
+    if(allCards.length === 0) {
+      allCardsGrouped = [];
+    } else {
+      allCardsGrouped = GroupCardsBy4Picking(allCards);
+    }
 
-    if (!allCards.length) {
+    // Préserver l'index courant
+    if (currentCardIndex >= allCardsGrouped.length) currentCardIndex = 0;
+
+    if (!allCardsGrouped.length) {
       // Affiche message vide si aucune carte
       const container = document.getElementById("deliveries_container");
       container.innerHTML = `
@@ -217,10 +244,10 @@ async function refreshDeliveries() {
 let lastRenderedCardData = null;
 
 function updateCurrentCard() {
-  if (!allCards.length) return;
+  if (!allCardsGrouped.length) return;
 
   const container = document.getElementById("deliveries_container");
-  const cardData = allCards[currentCardIndex];
+  const cardData = allCardsGrouped[currentCardIndex];
 
   // Sérialisation simple pour comparaison (tu peux adapter si tu veux ignorer certains champs)
   const cardHash = JSON.stringify(cardData);
@@ -322,9 +349,9 @@ function displayCurrentCard() {
   const container = document.getElementById("deliveries_container");
   const navContainer = document.getElementById("nav_controls");
 
-  if (!allCards.length) return;
+  if (!allCardsGrouped.length) return;
 
-  const card = allCards[currentCardIndex];
+  const card = allCardsGrouped[currentCardIndex];
 
   // Vérifie si on change réellement de carte
   const isCardChanged = lastRenderedCardIndex !== currentCardIndex;
@@ -355,15 +382,15 @@ function displayCurrentCard() {
   // Mettre à jour le compteur
   navContainer.innerHTML =
     `<span class="text-muted mx-2" style="font-size: 1.65rem;">
-      ${currentCardIndex + 1} / ${allCards.length}
+      ${currentCardIndex + 1} / ${allCardsGrouped.length}
      </span>`;
 }
 
 
 const shownextCard = () => {
-  if (!allCards.length) return;
+  if (!allCardsGrouped.length) return;
   
-  if (currentCardIndex < allCards.length - 1) {
+  if (currentCardIndex < allCardsGrouped.length - 1) {
     currentCardIndex++;
   } else {
     currentCardIndex = 0;
