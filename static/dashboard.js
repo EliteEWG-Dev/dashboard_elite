@@ -48,8 +48,6 @@ function renderProgressKpiTemplate(k) {
   return clone;
 }
 
-
-
 /**
  * Sous-card KPI : confirmation client (cancel exclus)
  * k = { active, yes, no, pct }
@@ -181,19 +179,16 @@ function renderCard(card) {
 }
 
 async function refreshDeliveries() {
-  const container = document.getElementById("deliveries_container");
-  const lastUpdate = document.getElementById("last_update");
-
   try {
     const data = await fetch("/deliveries").then(r => r.json());
     allCards = data.cards || [];
-    
-    // ✅ Préserver l'index courant si possible
-    if (currentCardIndex >= allCards.length) {
-      currentCardIndex = 0;
-    }
+
+    // Préserver l'index courant
+    if (currentCardIndex >= allCards.length) currentCardIndex = 0;
 
     if (!allCards.length) {
+      // Affiche message vide si aucune carte
+      const container = document.getElementById("deliveries_container");
       container.innerHTML = `
         <div class="col-12">
           <div class="card shadow-sm">
@@ -201,18 +196,105 @@ async function refreshDeliveries() {
           </div>
         </div>`;
     } else {
-      displayCurrentCard();
+      // Met à jour uniquement la carte courante
+      updateCurrentCard();
     }
 
-    lastUpdate.textContent = "Dernière mise à jour : " + DateNowText();
+    document.getElementById("last_update").textContent =
+      "Dernière mise à jour : " + DateNowText();
   } catch (e) {
     console.error(e);
+    const container = document.getElementById("deliveries_container");
     container.innerHTML = `
       <div class="col-12">
         <div class="alert alert-warning mb-0">Erreur lors du chargement des tournées.</div>
       </div>`;
-    lastUpdate.textContent = "Erreur : " + DateNowText();
+    document.getElementById("last_update").textContent =
+      "Erreur : " + DateNowText();
   }
+}
+
+function updateCurrentCard() {
+  if (!allCards.length) return;
+
+  const container = document.getElementById("deliveries_container");
+  const cardData = allCards[currentCardIndex];
+
+  // Vérifie si une carte est déjà présente
+  let cardWrapper = container.querySelector(".col-12");
+  if (!cardWrapper) {
+    // Si pas de carte, créer une nouvelle
+    cardWrapper = document.createElement("div");
+    cardWrapper.className = "col-12";
+    container.appendChild(cardWrapper);
+  }
+
+  // Si on n'a pas de card DOM ou qu'on change de carte, créer toute la carte
+  if (!cardWrapper.firstChild || lastRenderedCardIndex !== currentCardIndex) {
+    const newCardNode = renderCard(cardData);
+    cardWrapper.innerHTML = ""; // vide le wrapper
+    cardWrapper.appendChild(newCardNode);
+  } else {
+    // Sinon, mettre à jour seulement les éléments existants
+    const cardNode = cardWrapper.firstChild;
+
+    // --- Header ---
+    cardNode.querySelector(".js-date-area").textContent = cardData.date || "";
+    cardNode.querySelector(".js-drivers").textContent = cardData.drivers || "";
+    cardNode.querySelector(".js-truck").textContent = `Camion ${cardData.truck || ""}`;
+    const statusBadge = cardNode.querySelector(".js-status-badge");
+    statusBadge.textContent = cardData.status_label || "";
+    statusBadge.className = "badge js-status-badge " + (cardData.status_badge_class || "text-bg-secondary");
+
+    // --- Pickings ---
+    const listGroup = cardNode.querySelector(".list-group");
+    listGroup.innerHTML = ""; // vide les pickings actuels
+    if (cardData.pickings && cardData.pickings.length) {
+      cardData.pickings.forEach(p => {
+        const clone = document.getElementById("list-group-item-template").content.cloneNode(true);
+        const timeBadge = clone.querySelector(".js-time-badge");
+        const time = clone.querySelector(".js-time");
+        const name = clone.querySelector(".js-name");
+        const city = clone.querySelector(".js-city");
+        const bl = clone.querySelector(".js-bl");
+        const row = clone.querySelector(".js-row");
+
+        if (timeBadge) timeBadge.className = "badge me-3 js-time-badge " + (p.time_badge_class || p.badge_class || "");
+        if (time) time.textContent = p.x_time_from || "";
+        if (name) name.textContent = p.partner_name || "";
+        if (city) city.textContent = p.x_city ? "• " + p.x_city : "";
+        if (bl) bl.textContent = p.name || "";
+        if (row) row.className = "list-group-item d-flex justify-content-between align-items-center js-row " + (p.row_class || "");
+
+        listGroup.appendChild(clone);
+      });
+    } else {
+      const emptyDiv = document.createElement("div");
+      emptyDiv.className = "list-group-item text-muted";
+      emptyDiv.textContent = "Aucun BL";
+      listGroup.appendChild(emptyDiv);
+    }
+
+    // --- KPI Livraison ---
+    const kpiWrapper = cardNode.querySelector(".js-kpi-wrapper");
+    if (cardData.status === "on_the_way") {
+      const kpiNode = renderProgressKpiTemplate(cardData.kpi_progress);
+      if (kpiWrapper && kpiNode) {
+        kpiWrapper.replaceWith(kpiNode);
+      }
+    }
+
+    // --- KPI Confirmation ---
+    const confirmWrapper = cardNode.querySelector(".js-confirmation-wrapper");
+    if (cardData.status === "open" || cardData.status === "full") {
+      const confirmNode = renderCustomerConfirmationKpi(cardData.kpi_customer_confirmation);
+      if (confirmWrapper && confirmNode) {
+        confirmWrapper.replaceWith(confirmNode);
+      }
+    }
+  }
+
+  lastRenderedCardIndex = currentCardIndex;
 }
 
 let lastRenderedCardIndex = null;
