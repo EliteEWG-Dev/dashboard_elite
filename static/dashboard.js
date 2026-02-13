@@ -10,6 +10,11 @@ function DateNowText() {
   try { return new Date().toLocaleString(); } catch(e) { return ""; }
 }
 
+/*
+* nombre de BL à afficher par carte (pour éviter d’avoir des cartes trop longues) 
+*/
+const nbrToSlice = 4;
+
 function GroupCardsBy4Picking(cardsData) {
   const groupedCards = [];
 
@@ -20,8 +25,8 @@ function GroupCardsBy4Picking(cardsData) {
       groupedCards.push({ ...card, pickings: [] });
     } else {
       // Découpe les pickings en tranche de 4
-      for (let i = 0; i < pickings.length; i += 4) {
-        const slice = pickings.slice(i, i + 4);
+      for (let i = 0; i < pickings.length; i += nbrToSlice) {
+        const slice = pickings.slice(i, i + nbrToSlice);
         groupedCards.push({ ...card, pickings: slice });
       }
     }
