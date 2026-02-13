@@ -252,6 +252,107 @@
           </div>
         </div>
       </div>
+      <!--un template par bout d'une carte-->
+      <!--Le header de la carte-->
+      <template id="card-header-template">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-start">           
+            <div>
+              <div class="fw-bold js-date-area"
+                  style="font-size: 1.55rem;">
+              </div>
+              <div class="text-muted js-drivers"
+                  style="font-size: 1.55rem;">
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">           
+              <span class="badge text-bg-dark js-truck"
+                    style="font-size: 1.55rem; padding: 0.65rem 1.1rem;">
+              </span>
+              <span class="badge js-status-badge"
+                    style="font-size: 1.55rem; padding: 0.65rem 1.1rem;">
+              </span>
+            </div>
+          </div>
+        </div>
+      </template>
+      <!--Le corps de la carte-->
+      <template id="list-group-item-template">
+        <div class="list-group-item d-flex justify-content-between align-items-center js-row">
+          <div class="text-truncate flex-grow-1">          
+            <span class="badge me-3 js-time-badge"
+                  style="font-size: 1.55rem; padding: 0.6rem 1rem;">
+              <span class="js-time"></span>
+            </span>
+            <span class="fw-semibold js-name"
+                  style="font-size: 1.55rem;"></span>
+            <span class="text-muted ms-2 js-city"
+                  style="font-size: 1.25rem;"></span>
+          </div>
+          <div class="ms-3 text-nowrap">
+            <span class="badge text-bg-light border js-bl"
+                  style="font-size: 1.55rem; padding: 0.6rem 1rem;">
+            </span>
+          </div>
+        </div>
+      </template>
+      <!--kpi vide quand il n'y a pas de confirmation client-->
+      <template id="kpi-confirmation-empty-template">
+        <div class="p-3 border-top bg-white text-muted" style="font-size: 1.65rem;">
+          Confirmation client : aucun BL actif
+        </div>
+      </template>
+      <!--kpi de confirmation client-->
+      <template id="kpi-confirmation-template">
+        <div class="p-3 border-top bg-white js-confirmation-wrapper">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-semibold" style="font-size: 1.25rem;">
+              Confirmation client
+            </div>
+            <div class="fw-semibold js-confirmation-percent" style="font-size: 1.25rem;">
+            </div>
+          </div>
+          <div class="progress js-confirmation-progress"
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              style="height: 25px;">
+            <div class="progress-bar bg-primary js-confirmation-bar"></div>
+          </div>
+        </div>
+      </template>
+      <!--bar de progression quand aucun BL est actif-->
+      <template id="kpi-progress-empty-template">
+        <div class="p-3 border-top bg-white text-muted js-kpi-empty"
+            style="font-size: 1.25rem;">
+          Progression livraison : aucun BL actif
+        </div>
+      </template>
+      <!--bar de progression quand un BL est actif-->
+      <template id="kpi-progress-template">
+        <div class="p-3 border-top bg-white js-kpi-wrapper">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-semibold"
+                style="font-size: 1.25rem;">
+              Progression livraison
+            </div>
+            <div class="fw-semibold js-kpi-percent"
+                style="font-size: 1.25rem;">
+            </div>
+          </div>
+          <div class="progress-wrap" style="height: 30px;">           
+            <div class="progress js-kpi-progress"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                style="height: 100%;">              
+              <div class="progress-bar bg-success js-kpi-bar"></div>             
+            </div>
+            <i class="fa-solid fa-truck truck js-kpi-truck"
+              style="font-size: 32px;"></i>
+          </div>
+        </div>
+      </template>
   </div>
 
   <footer>
