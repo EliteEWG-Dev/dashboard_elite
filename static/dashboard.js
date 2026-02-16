@@ -282,19 +282,49 @@ function updateCurrentCard() {
   }
 
   // --- Sinon, mettre à jour seulement le contenu ---
-  const cardNode = cardWrapper.firstChild;
+  let cardNode = cardWrapper.firstElementChild;
 
-  // Header
-  cardNode.querySelector(".js-date-area").textContent = cardData.date || "";
-  cardNode.querySelector(".js-drivers").textContent = cardData.drivers || "";
-  cardNode.querySelector(".js-truck").textContent = `Camion ${cardData.truck || ""}`;
+  if (!cardNode) {
+    // Pas encore de carte dans le wrapper, on la crée
+    cardNode = renderCard(cardData);
+    cardWrapper.innerHTML = "";
+    cardWrapper.appendChild(cardNode);
+    cardWrapper.classList.add("card-fade");
+    void cardWrapper.offsetWidth;
+    cardWrapper.classList.add("show");
+
+    // Pas besoin de continuer l'update après création
+    return;
+  }
+
+  // --- Sinon, mettre à jour seulement le contenu ---
+  const dateEl = cardNode.querySelector(".js-date-area");
+  if (dateEl) dateEl.textContent = cardData.date || "";
+
+  const driversEl = cardNode.querySelector(".js-drivers");
+  if (driversEl) driversEl.textContent = cardData.drivers || "";
+
+  const truckEl = cardNode.querySelector(".js-truck");
+  if (truckEl) truckEl.textContent = `Camion ${cardData.truck || ""}`;
+
   const statusBadge = cardNode.querySelector(".js-status-badge");
-  statusBadge.textContent = cardData.status_label || "";
-  statusBadge.className = "badge js-status-badge " + (cardData.status_badge_class || "text-bg-secondary");
+  if (statusBadge) {
+    statusBadge.textContent = cardData.status_label || "";
+    statusBadge.className = "badge js-status-badge " + (cardData.status_badge_class || "text-bg-secondary");
+  }
 
-  // Pickings
-  const listGroup = cardNode.querySelector(".list-group");
+  // --- Pickings
+  let listGroup = cardNode.querySelector(".list-group");
+
+  if (!listGroup) {
+    // Créer la div à la volée
+    listGroup = document.createElement("div");
+    listGroup.className = "list-group list-group-flush";
+    cardNode.querySelector(".card-body")?.appendChild(listGroup);
+  }
+
   listGroup.innerHTML = "";
+
   if (cardData.pickings && cardData.pickings.length) {
     cardData.pickings.forEach(p => {
       const clone = document.getElementById("list-group-item-template").content.cloneNode(true);
