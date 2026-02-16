@@ -55,7 +55,7 @@ function renderProgressKpiTemplate(k) {
 
   // Calcule les pourcentages et la position du camion (entre 3% et 97% pour éviter de sortir du cadre)
   const pct = Math.max(0, Math.min(100, k.pct ?? 0));
-  const truckLeft = Math.max(3, Math.min(97, pct + 2));
+  const truckLeft = Math.max(0, Math.min(100, k.pct ?? 0));
 
   // Cloner les éléments du template pour les manipuler
   const percentEl = clone.querySelector(".js-kpi-percent");
