@@ -117,12 +117,14 @@ function renderCard(card) {
   const headerClone = headerTemplate.content.cloneNode(true);
 
   // Récupérer les éléments à remplir dans le clone
+  const headerArea = headerClone.querySelector(".js-area");
   const headerDate = headerClone.querySelector(".js-date-area");
   const headerDrivers = headerClone.querySelector(".js-drivers");
   const headerTruck = headerClone.querySelector(".js-truck");
   const headerStatusBadge = headerClone.querySelector(".js-status-badge");
 
   // Injecter les données de la carte dans le header
+  if (headerArea) headerArea.textContent = card.area || "";
   if (headerDate) headerDate.textContent = card.date || "";
   if (headerDrivers) headerDrivers.textContent = card.drivers || "";
   if (headerTruck) headerTruck.textContent = `Camion ${card.truck || ""}`;
@@ -138,6 +140,8 @@ function renderCard(card) {
 
   // Récupérer le template de la liste des pickings
   const bodyTemplate = document.getElementById("list-group-item-template");
+
+  console.log("Rendering card:", card);
 
   // Injecter les pickings dans le body de la carte
   if (card.pickings && card.pickings.length > 0) {
@@ -398,7 +402,6 @@ function displayCurrentCard() {
   // Au lieu de innerHTML = renderCard(card)
   const cardNode = renderCard(card);
   newCardWrapper.appendChild(cardNode);
-
 
   // Vider et injecter dans le DOM
   container.innerHTML = "";
