@@ -134,14 +134,22 @@ function renderCard(card) {
     headerStatusBadge.classList.add(card.status_badge_class || "text-bg-secondary");
   }
 
+  // afficher le retard si delay = true
+  const delayBanner = headerClone.querySelector(".js-delay-banner");
+  if (delayBanner) {
+    if (card.delay) {
+      delayBanner.classList.remove("d-none"); // affiche le bandeau
+    } else {
+      delayBanner.classList.add("d-none"); // cache le bandeau
+    }
+  }
+
   // --- Body (pickings) ---
   // Créer un fragment pour la liste des pickings
   const bodyFragment = document.createDocumentFragment();
 
   // Récupérer le template de la liste des pickings
   const bodyTemplate = document.getElementById("list-group-item-template");
-
-  console.log("Rendering card:", card);
 
   // Injecter les pickings dans le body de la carte
   if (card.pickings && card.pickings.length > 0) {
@@ -250,137 +258,15 @@ async function refreshDeliveries() {
   }
 }
 
-let lastRenderedCardData = null;
-
 function updateCurrentCard() {
-  if (!allCardsGrouped.length) return;
-
   const container = document.getElementById("deliveries_container");
   const cardData = allCardsGrouped[currentCardIndex];
 
-  // Sérialisation simple pour comparaison (tu peux adapter si tu veux ignorer certains champs)
-  const cardHash = JSON.stringify(cardData);
+  const cardNode = renderCard(cardData);
 
-  // Si rien n’a changé, on ne fait rien
-  if (cardHash === lastRenderedCardData) return;
-
-  lastRenderedCardData = cardHash;
-
-  // --- DOM update comme avant ---
-  let cardWrapper = container.querySelector(".col-12");
-  if (!cardWrapper) {
-    cardWrapper = document.createElement("div");
-    cardWrapper.className = "col-12";
-    container.appendChild(cardWrapper);
-  }
-
-  // Si pas de carte existante ou changement de carte, créer toute la carte
-  if (!cardWrapper.firstChild) {
-    const newCardNode = renderCard(cardData);
-    cardWrapper.innerHTML = "";
-    cardWrapper.appendChild(newCardNode);
-    cardWrapper.classList.add("card-fade");
-    void cardWrapper.offsetWidth;
-    cardWrapper.classList.add("show");
-    return;
-  }
-
-  // --- Sinon, mettre à jour seulement le contenu ---
-  let cardNode = cardWrapper.firstElementChild;
-
-  if (!cardNode) {
-    // Pas encore de carte dans le wrapper, on la crée
-    cardNode = renderCard(cardData);
-    cardWrapper.innerHTML = "";
-    cardWrapper.appendChild(cardNode);
-    cardWrapper.classList.add("card-fade");
-    void cardWrapper.offsetWidth;
-    cardWrapper.classList.add("show");
-
-    // Pas besoin de continuer l'update après création
-    return;
-  }
-
-  // --- Sinon, mettre à jour seulement le contenu ---
-  const dateEl = cardNode.querySelector(".js-date-area");
-  if (dateEl) dateEl.textContent = cardData.date || "";
-
-  const driversEl = cardNode.querySelector(".js-drivers");
-  if (driversEl) driversEl.textContent = cardData.drivers || "";
-
-  const truckEl = cardNode.querySelector(".js-truck");
-  if (truckEl) truckEl.textContent = `Camion ${cardData.truck || ""}`;
-
-  const statusBadge = cardNode.querySelector(".js-status-badge");
-  if (statusBadge) {
-    statusBadge.textContent = cardData.status_label || "";
-    statusBadge.className = "badge js-status-badge " + (cardData.status_badge_class || "text-bg-secondary");
-  }
-
-  // --- Pickings
-  let listGroup = cardNode.querySelector(".list-group");
-
-  if (!listGroup) {
-    // Créer la div à la volée
-    listGroup = document.createElement("div");
-    listGroup.className = "list-group list-group-flush";
-    cardNode.querySelector(".card-body")?.appendChild(listGroup);
-  }
-
-  listGroup.innerHTML = "";
-
-  if (cardData.pickings && cardData.pickings.length) {
-    cardData.pickings.forEach(p => {
-      const clone = document.getElementById("list-group-item-template").content.cloneNode(true);
-      const timeBadge = clone.querySelector(".js-time-badge");
-      const time = clone.querySelector(".js-time");
-      const name = clone.querySelector(".js-name");
-      const city = clone.querySelector(".js-city");
-      const bl = clone.querySelector(".js-bl");
-      const row = clone.querySelector(".js-row");
-
-      if (timeBadge) timeBadge.className = "badge me-3 js-time-badge " + (p.time_badge_class || p.badge_class || "");
-      if (time) time.textContent = p.x_time_from || "";
-      if (name) name.textContent = p.partner_name || "";
-      if (city) city.textContent = p.x_city ? "• " + p.x_city : "";
-      if (bl) bl.textContent = p.name || "";
-      if (row) row.className = "list-group-item d-flex justify-content-between align-items-center js-row " + (p.row_class || "");
-
-      listGroup.appendChild(clone);
-    });
-  } else {
-    const emptyDiv = document.createElement("div");
-    emptyDiv.className = "list-group-item text-muted";
-    emptyDiv.textContent = "Aucun BL";
-    listGroup.appendChild(emptyDiv);
-  }
-
-  // --- KPI Livraison ---
-  if (cardData.status === "on_the_way") {
-    const existingKpi = cardNode.querySelector(".js-kpi-wrapper");
-    const kpiNode = renderProgressKpiTemplate(cardData.kpi_progress);
-
-    if (existingKpi) {
-      existingKpi.replaceWith(kpiNode);
-    } else {
-      cardNode.querySelector(".card-body").appendChild(kpiNode);
-    }
-  }
-
-  // --- KPI Confirmation ---
-  if (cardData.status === "open" || cardData.status === "full") {
-    const existingConfirm = cardNode.querySelector(".js-confirmation-wrapper");
-    const confirmNode = renderCustomerConfirmationKpi(cardData.kpi_customer_confirmation);
-
-    if (existingConfirm) {
-      existingConfirm.replaceWith(confirmNode);
-    } else {
-      cardNode.querySelector(".card-body").appendChild(confirmNode);
-    }
-  }
-
+  container.innerHTML = "";
+  container.appendChild(cardNode);
 }
-
 
 let lastRenderedCardIndex = null;
 
@@ -424,7 +310,6 @@ function displayCurrentCard() {
      </span>`;
 }
 
-
 const shownextCard = () => {
   if (!allCardsGrouped.length) return;
   
@@ -436,6 +321,7 @@ const shownextCard = () => {
 
   displayCurrentCard();
 };
+
 
 refreshDeliveries();
 

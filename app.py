@@ -205,7 +205,8 @@ def deliveries():
                 "x_truck",
                 "x_drivers",
                 "x_stock_picking_ids",
-                "x_status"
+                "x_status",
+                "x_truck_delay" 
             ],
             "order": "x_date asc, x_truck asc, id asc",
         },
@@ -251,7 +252,7 @@ def deliveries():
                     "x_time_to",
                     "date_done",            
                     "x_city",
-                    "x_customer_confirmation", 
+                    "x_customer_confirmation"
                 ],
                 "order": "x_time_from asc, id asc",
             },
@@ -390,6 +391,7 @@ def deliveries():
             "truck": d.get("x_truck") or "",
             "drivers": drivers_label,
             "pickings": picking_lines,
+            "delay": bool(d.get("x_truck_delay")) or False,
 
             # ✅ sous-card KPI progression
             "kpi_progress": {
