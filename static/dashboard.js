@@ -135,7 +135,7 @@ function renderCard(card) {
   }
 
   // calcule si la tournée est en retard en comparant l'heure actuelle avec les heures "time_to" des pickings
-  const isDelayed = card.pickings.some(p => {
+  const isDelayed = allCardsGrouped.find(c => c.area === card.area).pickings.some(p => {
     const state = (p.state || "").toLowerCase();
 
     // on ne calcule que pour done

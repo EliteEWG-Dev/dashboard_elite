@@ -315,9 +315,9 @@ def deliveries():
                 x_time_to_min = float_to_minutes(p.get("x_time_to"))
                 if dt_done_local and dt_done_local.date() == today_local and x_time_to_min is not None:
                     done_min = dt_done_local.hour * 60 + dt_done_local.minute
-                    if done_min > x_time_to_min:
+                    #if done_min > x_time_to_min:
                         # retard -> badge heure rouge
-                        p["time_badge_class"] = "text-bg-danger"
+                        #p["time_badge_class"] = "text-bg-danger"
 
     # 4) Résoudre les chauffeurs (x_drivers)
     all_emp_ids = set()
