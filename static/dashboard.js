@@ -134,14 +134,35 @@ function renderCard(card) {
     headerStatusBadge.classList.add(card.status_badge_class || "text-bg-secondary");
   }
 
-  // afficher le retard si delay = true
+  // calcule si la tournée est en retard en comparant l'heure actuelle avec les heures "time_to" des pickings
+  const isDelayed = card.pickings.some(p => {
+    const state = (p.state || "").toLowerCase();
+
+    // on ne calcule que pour done
+    if (state !== "done") return false;
+
+    // parse date_done comme en Python
+    if (!p.date_done) return false;
+    const doneDate = new Date(p.date_done.replace(" ", "T"));
+    const today = new Date();
+    if (doneDate.getFullYear() !== today.getFullYear() ||
+        doneDate.getMonth() !== today.getMonth() ||
+        doneDate.getDate() !== today.getDate()) return false;
+
+    // parse x_time_to
+    const xTimeToMin = parseFloat(p.x_time_to);
+    if (isNaN(xTimeToMin)) return false;
+
+    const doneMinutes = doneDate.getHours() * 60 + doneDate.getMinutes();
+    const timeToMinutes = xTimeToMin * 60; // conversion float -> minutes
+
+    return doneMinutes > timeToMinutes;
+  });
+
   const delayBanner = headerClone.querySelector(".js-delay-banner");
+
   if (delayBanner) {
-    if (card.delay) {
-      delayBanner.classList.remove("d-none"); // affiche le bandeau
-    } else {
-      delayBanner.classList.add("d-none"); // cache le bandeau
-    }
+    delayBanner.classList.toggle("d-none", !isDelayed);
   }
 
   // --- Body (pickings) ---
